@@ -1,23 +1,23 @@
-FROM hairyhenderson/gomplate:v3.10.0-slim AS gomplate
-FROM docker:20.10.12 AS docker
+FROM hairyhenderson/gomplate:v3.11.3-slim AS gomplate
+FROM docker:20.10.23 AS docker
 FROM docker/compose:1.29.2 AS compose
-FROM vault:1.9.3 AS vault
-FROM hashicorp/terraform:1.1.5 AS terraform
-FROM hashicorp/packer:1.7.10 AS packer
-FROM prom/prometheus:v2.33.1 AS prometheus
-FROM prom/alertmanager:v0.23.0 AS alertmanager
-FROM mikefarah/yq:4.18.1 AS yq
-FROM lachlanevenson/k8s-kubectl:v1.21.9 AS kubectl
+FROM vault:1.12.3 AS vault
+FROM hashicorp/terraform:1.3.9 AS terraform
+FROM hashicorp/packer:1.8.6 AS packer
+FROM prom/prometheus:v2.42.0 AS prometheus
+FROM prom/alertmanager:v0.25.0 AS alertmanager
+FROM mikefarah/yq:4.31.1 AS yq
+FROM lachlanevenson/k8s-kubectl:v1.25.4 AS kubectl
 FROM lachlanevenson/k8s-helm:v2.17.0 AS helm2
-FROM lachlanevenson/k8s-helm:v3.8.0 AS helm
-FROM golangci/golangci-lint:v1.44.0-alpine AS golangci-lint
+FROM lachlanevenson/k8s-helm:v3.10.2 AS helm
+FROM golangci/golangci-lint:v1.51.2-alpine AS golangci-lint
 
-FROM alpine:3.15 AS cc-test-reporter
+FROM alpine:3.17 AS cc-test-reporter
 
 RUN wget -q -O /bin/cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
 RUN chmod +x /bin/cc-test-reporter
 
-FROM alpine:3.15 AS packages
+FROM alpine:3.17 AS packages
 
 RUN apk add --no-cache \
     zip \
@@ -52,7 +52,7 @@ RUN wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/$GLIBC/g
   && ln -s /lib/libc.musl-x86_64.so.1 /usr/glibc-compat/lib \
   && ln -s /usr/lib/libgcc_s.so.1 /usr/glibc-compat/lib
 
-FROM golang:1.18.1-alpine AS build
+FROM golang:1.20.1-alpine AS build
 
 COPY --from=gomplate /gomplate /bin/gomplate
 COPY --from=docker /usr/local/bin/docker /bin/docker
